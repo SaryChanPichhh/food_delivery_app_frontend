@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:help_app_frontend/frontend_admin/modules/customer/food/food_screen.dart';
 import 'package:help_app_frontend/frontend_admin/modules/customer/grocery/grocery_screen.dart';
 import 'package:help_app_frontend/frontend_admin/modules/customer/shop/shop_detail_screen.dart';
@@ -8,6 +10,7 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 import '../../customer/account/account_screen.dart';
 import '../../customer/cart/cart_screen.dart';
+import '../controllers/category_controller.dart';
 
 class MenuScreen extends StatelessWidget {
   MenuScreen({super.key});
@@ -114,19 +117,3 @@ class MenuScreen extends StatelessWidget {
     );
   }
 }
-
-// List<PersistentBottomNavBarItem> _navBarsItems() {
-//   return [
-//     PersistentBottomNavBarItem(
-//       icon: Icon(CupertinoIcons.home),
-//       title: ("Home"),
-//       activeColorPrimary: CupertinoColors.activeBlue,
-//       inactiveColorPrimary: CupertinoColors.systemGrey,
-//       // scrollController: _scrollController1,
-//       routeAndNavigatorSettings: RouteAndNavigatorSettings(
-//         initialRoute: "/",
-//         routes: {},
-//       ),
-//     ),
-//   ];
-// }

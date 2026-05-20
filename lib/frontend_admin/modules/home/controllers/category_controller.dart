@@ -1,12 +1,9 @@
 import 'package:get/get.dart';
+import 'package:help_app_frontend/frontend_admin/data/infrastructure/category._infra.dart';
 import 'package:help_app_frontend/frontend_admin/data/models/category_model.dart';
-import 'package:help_app_frontend/frontend_admin/data/repositories/category_repository.dart';
 
 class CategoryController extends GetxController {
-  final CategoryRepository repository;
-
-  CategoryController(this.repository);
-
+  final categoryRepository = Get.find<CategoryInfra>();
   var categories = <CategoryData>[].obs;
   var isLoading = false.obs;
   @override
@@ -19,10 +16,10 @@ class CategoryController extends GetxController {
   Future<void> fetchCategories() async {
     try {
       isLoading(true);
-      final result = await repository.getCategories();
+      final result = await categoryRepository.getCategories();
       categories.assignAll(result);
+      print('categories: $categories');
     } catch (e) {
-      Get.snackbar('Error', e.toString());
     } finally {
       isLoading(false);
     }

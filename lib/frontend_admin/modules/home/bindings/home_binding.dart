@@ -6,8 +6,8 @@ import 'package:help_app_frontend/frontend_admin/modules/home/controllers/catego
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => CategoryProvider());
-    Get.lazyPut(() => CategoryRepository(Get.find()));
-    Get.lazyPut(() => CategoryController(Get.find()));
+    Get.lazyPut(() => CategoryProvider(), fenix: true);
+    Get.lazyPut(() => CategoryRepository(), fenix: true);
+    Get.lazyPut(() => CategoryController(), fenix: true);
   }
 }

@@ -1,36 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:help_app_frontend/frontend_admin/modules/home/controllers/category_controller.dart';
 import 'package:help_app_frontend/frontend_admin/widgets/modal_components.dart';
 import 'package:help_app_frontend/frontend_admin/widgets/sticky_search_menu_component.dart';
 import 'package:help_app_frontend/frontend_admin/modules/customer/favorite/favortite_screen.dart';
 import 'package:help_app_frontend/utils/constraint.dart';
 
+import 'package:help_app_frontend/frontend_admin/modules/home/controllers/restaurant_controller.dart';
+import 'package:help_app_frontend/frontend_admin/widgets/restaurant_card.dart';
+import 'package:help_app_frontend/frontend_admin/widgets/menu_with_resinfo_component.dart';
+import 'package:help_app_frontend/frontend_admin/modules/home/controllers/discount_menu_controller.dart';
+
 class FoodScreen extends StatelessWidget {
   FoodScreen({super.key});
+  final categoryController = Get.put(CategoryController());
+  final restaurantController = Get.put(RestaurantController());
+  final discountMenuController = Get.put(DiscountMenuController());
 
-  final List<Map<String, dynamic>> foodShops = [
-    {
-      'id': 1,
-      'name': 'សុវណ្ណភូមិ ភោជនីយដ្ឋាន',
-      'image': 'assets/images/google.png',
-    },
-    {'id': 2, 'name': 'បាយសៀងហួរ ឆ្ងាញ់ៗ', 'image': 'assets/images/google.png'},
-    {
-      'id': 3,
-      'name': 'ហាងប៊ឺហ្គឺ Fresh Bite',
-      'image': 'assets/images/google.png',
-    },
-    {
-      'id': 4,
-      'name': 'Pizza House Express',
-      'image': 'assets/images/google.png',
-    },
-    {
-      'id': 5,
-      'name': 'Phnom Penh Coffee & Bakery',
-      'image': 'assets/images/google.png',
-    },
-  ];
   final List<Map<String, dynamic>> categories = [
     {
       'id': 1,
@@ -85,6 +71,7 @@ class FoodScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: primaryColor,
       body: SafeArea(
+        bottom: false,
         child: CustomScrollView(
           slivers: [
             // 🟣 Scrollable header (location row + favorite icon)
@@ -227,7 +214,9 @@ class FoodScreen extends StatelessWidget {
                   SizedBox(height: 20),
                   Container(
                     width: double.infinity,
-                    // height: 1600,
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
@@ -238,6 +227,7 @@ class FoodScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         SizedBox(height: 20),
+
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -256,90 +246,72 @@ class FoodScreen extends StatelessWidget {
                           ),
                           height: 120,
                           width: double.infinity,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: foodShops.length,
-                            itemBuilder: (context, index) {
-                              final shop = foodShops[index];
-                              return Container(
-                                width: 110,
-                                height: 100,
-                                // decoration: BoxDecoration(color: Colors.red),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 50,
-                                      height: 50,
-                                      child: Image.asset(shop['image']),
-                                    ),
-                                    SizedBox(height: 15),
-                                    Text(
-                                      shop['name'],
-                                      style: TextStyle(
-                                        color: primaryColor,
-                                        fontSize: 14,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
+                          child: Obx(() {
+                            if (categoryController.isLoading.value) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
                               );
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(
-                                  0.1,
-                                ), // 🔹 semi-transparent black
-                                blurRadius: 10, // 🔹 how soft the shadow looks
-                                offset: const Offset(
-                                  0,
-                                  5,
-                                ), // 🔹 x=0, y=4 → bottom shadow
-                              ),
-                            ],
-                          ),
-                          height: 120,
-                          width: double.infinity,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: categories.length,
-                            itemBuilder: (context, index) {
-                              final category = categories[index];
-                              return Container(
-                                width: 110,
-                                height: 100,
-                                // decoration: BoxDecoration(color: Colors.red),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 50,
-                                      height: 50,
-                                      child: Image.asset(category['image']),
-                                    ),
-                                    SizedBox(height: 15),
-                                    Text(
-                                      category['name'],
-                                      style: TextStyle(
-                                        color: primaryColor,
-                                        fontSize: 14,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
+                            }
+                            if (categoryController.categories.isEmpty) {
+                              return const Center(
+                                child: Text("មិនមានទិន្នន័យ"),
                               );
-                            },
-                          ),
+                            }
+                            return ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: categoryController.categories.length,
+                              itemBuilder: (context, index) {
+                                final category =
+                                    categoryController.categories[index];
+                                return Container(
+                                  width: 110,
+                                  height: 100,
+                                  // decoration: BoxDecoration(color: Colors.red),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 50,
+                                        height: 50,
+                                        child:
+                                            category.imageUrl != null &&
+                                                category.imageUrl!.isNotEmpty
+                                            ? Image.network(
+                                                category.imageUrl!,
+                                                errorBuilder:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stackTrace,
+                                                    ) => const Icon(
+                                                      Icons.image,
+                                                      color: Colors.grey,
+                                                    ),
+                                              )
+                                            : const Icon(
+                                                Icons.image,
+                                                color: Colors.grey,
+                                              ),
+                                      ),
+                                      SizedBox(height: 15),
+                                      Text(
+                                        category.name ?? '',
+                                        style: TextStyle(
+                                          color: primaryColor,
+                                          fontSize: 14,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          }),
                         ),
                         SizedBox(height: 20),
                         Padding(
@@ -382,55 +354,35 @@ class FoodScreen extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(
-                                  0.1,
-                                ), // 🔹 semi-transparent black
-                                blurRadius: 10, // 🔹 how soft the shadow looks
-                                offset: const Offset(
-                                  0,
-                                  5,
-                                ), // 🔹 x=0, y=4 → bottom shadow
-                              ),
-                            ],
-                          ),
-                          height: 120,
+                          margin: EdgeInsets.only(left: 10),
+                          decoration: BoxDecoration(color: Colors.white),
+                          height: 280,
                           width: double.infinity,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: categories.length,
-                            itemBuilder: (context, index) {
-                              final category = categories[index];
-                              return Container(
-                                width: 110,
-                                height: 100,
-                                // decoration: BoxDecoration(color: Colors.red),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 50,
-                                      height: 50,
-                                      child: Image.asset(category['image']),
-                                    ),
-                                    SizedBox(height: 15),
-                                    Text(
-                                      category['name'],
-                                      style: TextStyle(
-                                        color: primaryColor,
-                                        fontSize: 14,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
+                          child: Obx(() {
+                            if (restaurantController.isLoading.value) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
                               );
-                            },
-                          ),
+                            }
+                            if (restaurantController
+                                .popularRestaurants
+                                .isEmpty) {
+                              return const Center(
+                                child: Text("មិនមានទិន្នន័យ"),
+                              );
+                            }
+                            return ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: restaurantController
+                                  .popularRestaurants
+                                  .length,
+                              itemBuilder: (context, index) {
+                                final shop = restaurantController
+                                    .popularRestaurants[index];
+                                return RestaurantCard(restaurant: shop);
+                              },
+                            );
+                          }),
                         ),
                         SizedBox(height: 20),
                         Padding(
@@ -440,65 +392,261 @@ class FoodScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'ម៉ាកល្បីៗ',
+                                'ការបញ្ចុះតម្លៃលើភោជនីយដ្ឋាន',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Container(
+                                height: 35,
+                                width: 35,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 1,
+                                      color: const Color.fromARGB(
+                                        255,
+                                        156,
+                                        156,
+                                        156,
+                                      ),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_ios_sharp,
+                                  size: 20,
                                 ),
                               ),
                             ],
                           ),
                         ),
                         Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(
-                                  0.1,
-                                ), // 🔹 semi-transparent black
-                                blurRadius: 10, // 🔹 how soft the shadow looks
-                                offset: const Offset(
-                                  0,
-                                  5,
-                                ), // 🔹 x=0, y=4 → bottom shadow
+                          padding: const EdgeInsets.only(left: 10, top: 15),
+                          height: 280,
+                          width: double.infinity,
+                          child: Obx(() {
+                            if (discountMenuController.isLoading.value) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            if (discountMenuController.menus.isEmpty) {
+                              return const Center(
+                                child: Text("មិនមានការបញ្ចុះតម្លៃ"),
+                              );
+                            }
+                            return ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: discountMenuController.menus.length,
+                              itemBuilder: (context, index) {
+                                return MenuWithResInfoComponent(
+                                  menuData: discountMenuController.menus[index],
+                                );
+                              },
+                            );
+                          }),
+                        ),
+                        SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'ការបញ្ចុះតម្លៃលើមុខទំនិញ',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Container(
+                                height: 35,
+                                width: 35,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 1,
+                                      color: const Color.fromARGB(
+                                        255,
+                                        156,
+                                        156,
+                                        156,
+                                      ),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_ios_sharp,
+                                  size: 20,
+                                ),
                               ),
                             ],
                           ),
-                          height: 120,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(left: 10, top: 15),
+                          height: 280,
                           width: double.infinity,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: categories.length,
-                            itemBuilder: (context, index) {
-                              final category = categories[index];
-                              return Container(
-                                width: 110,
-                                height: 100,
-                                // decoration: BoxDecoration(color: Colors.red),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 50,
-                                      height: 50,
-                                      child: Image.asset(category['image']),
-                                    ),
-                                    SizedBox(height: 15),
-                                    Text(
-                                      category['name'],
-                                      style: TextStyle(
-                                        color: primaryColor,
-                                        fontSize: 14,
+                          child: Obx(() {
+                            if (discountMenuController.isLoading.value) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            if (discountMenuController.menus.isEmpty) {
+                              return const Center(
+                                child: Text("មិនមានការបញ្ចុះតម្លៃ"),
+                              );
+                            }
+                            return ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: discountMenuController.menus.length,
+                              itemBuilder: (context, index) {
+                                return MenuWithResInfoComponent(
+                                  menuData: discountMenuController.menus[index],
+                                );
+                              },
+                            );
+                          }),
+                        ),
+                        SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'ភោជនីយដ្ឋានថ្មីៗ',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Container(
+                                height: 35,
+                                width: 35,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 1,
+                                      color: const Color.fromARGB(
+                                        255,
+                                        156,
+                                        156,
+                                        156,
                                       ),
-                                      textAlign: TextAlign.center,
                                     ),
                                   ],
+                                  borderRadius: BorderRadius.circular(50),
                                 ),
-                              );
-                            },
+                                child: Icon(
+                                  Icons.arrow_forward_ios_sharp,
+                                  size: 20,
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(left: 10, top: 15),
+                          height: 280,
+                          width: double.infinity,
+                          child: Obx(() {
+                            if (discountMenuController.isLoading.value) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            if (discountMenuController.menus.isEmpty) {
+                              return const Center(
+                                child: Text("មិនមានការបញ្ចុះតម្លៃ"),
+                              );
+                            }
+                            return ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: discountMenuController.menus.length,
+                              itemBuilder: (context, index) {
+                                return MenuWithResInfoComponent(
+                                  menuData: discountMenuController.menus[index],
+                                );
+                              },
+                            );
+                          }),
+                        ),
+                        SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'ភោជនីយដ្ឋានថ្មីៗ',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Container(
+                                height: 35,
+                                width: 35,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 1,
+                                      color: const Color.fromARGB(
+                                        255,
+                                        156,
+                                        156,
+                                        156,
+                                      ),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_ios_sharp,
+                                  size: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(left: 10, top: 15),
+                          height: 280,
+                          width: double.infinity,
+                          child: Obx(() {
+                            if (discountMenuController.isLoading.value) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            if (discountMenuController.menus.isEmpty) {
+                              return const Center(
+                                child: Text("មិនមានការបញ្ចុះតម្លៃ"),
+                              );
+                            }
+                            return ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: discountMenuController.menus.length,
+                              itemBuilder: (context, index) {
+                                return MenuWithResInfoComponent(
+                                  menuData: discountMenuController.menus[index],
+                                );
+                              },
+                            );
+                          }),
                         ),
                         SizedBox(height: 20),
                         Container(
